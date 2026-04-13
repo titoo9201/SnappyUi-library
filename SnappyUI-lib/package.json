@@ -1,0 +1,22 @@
+{
+  "name": "snappyui-lib",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "author": "Titoo Singh | Creator of SnappyUI 🚀 (https://github.com/titoo9201)",
+  "license": "ISC",
+  "description": "SnappyUI is an AI-powered React UI library designed to build fast, smart, and beautiful user interfaces effortlessly.",
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.2"
+  }
+}
