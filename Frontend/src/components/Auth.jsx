@@ -10,6 +10,10 @@ import {
   TbDownload,
 } from "react-icons/tb";
 import { HiSparkles } from "react-icons/hi2";
+import { auth ,provider} from "../utils/firebase";
+import { signInWithPopup } from "firebase/auth";
+import axios from "axios";
+import { serverUrl } from "../App";
 
 const steps = [
   {
@@ -48,21 +52,36 @@ function Auth({ onClose }) {
     );
     return () => clearInterval(id);
   }, []);
+const googleAuth= async()=>{
+    try {
+        const res= await signInWithPopup(auth,provider)
+        let user = res.user
+        let name = user.displayName
+        let email = user.email
+        const result =await axios.post(serverUrl+"/api/auth/register",{name,email},{withCredentials:true})
+        console.log(result.data);
+        
+        
+    } catch (error) {
+        console.log(error);
+        
+    }
 
+}
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50 p-2 sm:p-4"
+        className="fixed inset-0 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-sm z-50 p-2 sm:p-4 overflow-y-auto"
       >
         <motion.div
           initial={{ opacity: 0, y: 28, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 28, scale: 0.95 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row w-full max-w-[880px] rounded-2xl border border-[#3ACFFF]/20 shadow-[0_40px_80px_rgba(0,0,0,0.9)] relative bg-[#0A0F2C] overflow-hidden"
+          className="flex flex-col sm:flex-row w-full max-w-[880px] max-h-[calc(100vh-1rem)] sm:max-h-none rounded-2xl border border-[#3ACFFF]/20 shadow-[0_40px_80px_rgba(0,0,0,0.9)] relative bg-[#0A0F2C] overflow-y-auto sm:overflow-hidden"
         >
           {/* Close Button */}
           <button
@@ -190,6 +209,7 @@ function Auth({ onClose }) {
                 )}
               </div>
               <motion.button
+                onClick={googleAuth}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-gradient-to-r from-[#3be8ff] to-[#6366f1] text-white py-3 px-6 rounded-lg shadow-lg shadow-[#3be8ff]/20"
@@ -213,5 +233,4 @@ function Auth({ onClose }) {
     </AnimatePresence>
   );
 }
-
 export default Auth;
