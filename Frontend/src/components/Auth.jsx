@@ -13,7 +13,7 @@ import { HiSparkles } from "react-icons/hi2";
 import { auth ,provider} from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import axios from "axios";
-import { serverUrl } from "../App";
+import { serverUrl } from "../utils/api";
 
 const steps = [
   {
