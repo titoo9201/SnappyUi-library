@@ -14,7 +14,7 @@ function App() {
         const res = await axios.get(serverUrl+`/api/users/current`, {
           withCredentials: true,
         })
-        dispatch(setUserData(res.data))
+        dispatch(setUserData(res.data.user))
       } catch (error) {
       
         console.error('Error fetching user:', error)

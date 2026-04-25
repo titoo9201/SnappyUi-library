@@ -14,6 +14,8 @@ import { auth ,provider} from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import axios from "axios";
 import { serverUrl } from "../utils/api";
+import {useDispatch} from "react-redux"
+import { setUserData } from "../redux/userSlice";
 
 const steps = [
   {
@@ -43,8 +45,11 @@ const steps = [
   },
 ];
 
+
 function Auth({ onClose }) {
   const [Active, setActive] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     const id = setInterval(
       () => setActive((s) => (s + 1) % steps.length),
@@ -54,22 +59,43 @@ function Auth({ onClose }) {
   }, []);
 const googleAuth= async()=>{
     try {
+       setLoading(true)
         const res= await signInWithPopup(auth,provider)
+
         let user = res.user
         let name = user.displayName
         let email = user.email
         const result =await axios.post(serverUrl+"/api/auth/register",{name,email},{withCredentials:true})
-        console.log(result.data);
+        dispatch(setUserData(result.data.user))
+        onClose()
+      
         
         
     } catch (error) {
         console.log(error);
         
+    }finally{
+        setLoading(false)
     }
+
 
 }
   return (
     <AnimatePresence>
+       {loading && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-4">
+          
+          <div className="w-10 h-10 border-2 border-[#3ACFFF]/30 border-t-[#3ACFFF] rounded-full animate-spin"></div>
+          
+          <p className="text-sm text-white/70">
+            Logging you in...
+          </p>
+
+        </div>
+      </div>
+    )}
+
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -210,12 +236,16 @@ const googleAuth= async()=>{
               </div>
               <motion.button
                 onClick={googleAuth}
+                disabled={loading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-[#3be8ff] to-[#6366f1] text-white py-3 px-6 rounded-lg shadow-lg shadow-[#3be8ff]/20"
+                 className={`bg-gradient-to-r from-[#3be8ff] to-[#6366f1] text-white py-3 px-6 rounded-lg shadow-lg shadow-[#3be8ff]/20 ${
+    loading ? "opacity-60 cursor-not-allowed" : ""
+  }`}
               >
                 <FcGoogle size={18} className="inline-block mr-2 -mt-1" />
-                Continue with Google
+                {loading ? "Please wait..." : "Continue with Google"}
+        
               </motion.button>
               <p className="text-[11px] text-[#e8f8fa]/80 mt-4 sm:mt-5">
                 No account needed for npm.{" "}
