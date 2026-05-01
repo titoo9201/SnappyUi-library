@@ -29,6 +29,8 @@ import { setUserData } from "../redux/userSlice";
 function Home() {
   const [showAuth, setshowAuth] = useState(false);
   const [profileOpen, setprofileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -57,7 +59,22 @@ function Home() {
     }
     setprofileOpen(false);
   };
-
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText("npm install snappyui-lib");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {}
+  };
+  const handlegenerate = async () => {
+    try {
+      if (userData) {
+        navigate("/generate");
+      } else {
+        setshowAuth(true);
+      }
+    } catch (err) {}
+  };
   return (
     <div
       className="min-h-screen bg-[#030b0d] text-white overflow-x-hidden"
@@ -93,7 +110,7 @@ function Home() {
 
         {/* Nav Buttons */}
         <div className=" hidden md:flex items-center gap-6 lg:gap-8 text-sm text-white/60">
-          <button className="duration-200 px-1 py-2 border border-white/10 rounded-xl text-sm text-white/70 hover:text-white hover:border-[#3ACFFF]/40 transition-all cursor-pointer bg-transparent w-full">
+          <button className="duration-200 px-6 py-2.5 border border-white/10 rounded-xl text-sm text-white/70 hover:text-white hover:border-[#3ACFFF]/40 transition-all cursor-pointer bg-transparent w-full">
             components
           </button>
 
@@ -102,7 +119,6 @@ function Home() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-               
                 onClick={() => setprofileOpen(!profileOpen)}
                 className="flex items-center gap-2.5 bg-white/[0.06] border border-white/10 hover:border-[#3ACFFF]/40 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
               >
@@ -156,20 +172,207 @@ function Home() {
               </AnimatePresence>
             </div>
           ) : (
-           <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-           onClick={()=>setshowAuth(true)}
-           className ="flex items-center gap-2 bg-gradient-to-tr from-[#9B5EFF] to-[#3ACFFF] px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer border-none shadow-[0_4px_15px_rgba(58,207,255,0.4)] hover:shadow-[0_6px_20px_rgba(58,207,255,0.6)] transition-shadow text-nowrap">
-            <HiSparkles size={18} /> Generate AI Component
-
-             
-           </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setshowAuth(true)}
+              className="flex items-center gap-2 bg-gradient-to-tr from-[#9B5EFF] to-[#3ACFFF] px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer border-none shadow-[0_4px_15px_rgba(58,207,255,0.4)] hover:shadow-[0_6px_20px_rgba(58,207,255,0.6)] transition-shadow text-nowrap"
+            >
+              <HiSparkles size={18} /> Generate Component
+            </motion.button>
           )}
         </div>
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="md:hidden text-white/70 hover:text-white transition-colors bg-transparent border-none cursor-pointer"
+        >
+          {menuOpen ? <TbX size={24} /> : <TbMenu2 size={24} />}
+        </button>
       </nav>
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden sticky top-[65px] z-30 bg-[#0A0F2C]/95 backdrop-blur-md border-b border-white/[0.05] px-4 py-4 flex flex-col gap-3 "
+          >
+            <button className="duration-200 px-6 py-2.5 border border-white/10 rounded-xl text-sm text-white/70 hover:text-white hover:border-[#3ACFFF]/40 transition-all cursor-pointer bg-transparent w-full">
+              components
+            </button>
+            {userData ? (
+              <>
+                <div className="flex items-center gap-2.5 py-2 border-t border-white/[0.07] ">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#9B5EFF] to-[#3ACFFF] flex items-center justify-center text-white text-[11px] font-bold">
+                    {getLetter(userData?.name)}
+                  </div>
+                  <span className="text-sm text-white/70 text-sm font-medium ">
+                    {userData?.name || "Guest"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setmenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
+                >
+                  <TbComponents size={18} className="text-white/70" />
+                  My Components
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer bg-transparent border-none text-left"
+                >
+                  <TbLogout size={18} className="text-white/70" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setshowAuth(true);
+                  setMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-tr from-[#9B5EFF] to-[#3ACFFF] px-4 py-3 rounded-xl text-sm font-semibold cursor-pointer border-none shadow-[0_4px_15px_rgba(58,207,255,0.4)] hover:shadow-[0_6px_20px_rgba(58,207,255,0.6)] transition-all"
+              >
+                <HiSparkles size={18} /> Generate Component
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* hero section */}
+      <section className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12 sm:pb-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.05 }}
+          className="inline-flex items-center gap-2 text-[10px] font-semibold tracking-[2.5px] uppercase text-[#3ACFFF] border border-[#3ACFFF] rounded-full py-1.5 px-4 mb-6 sm:mb-7 justify-center"
+        >
+          <span className=" w-1.5 h-1.5 rounded-full bg-[#3ACFFF] animate-pulse" />
+          AI-POWERED REACT UI LIBRARY
+        </motion.div>
+        <motion.h1
+          className="text-4xl sm:text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#9B5EFF] to-[#3ACFFF] mb-6 sm:mb-8"
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.12 }}
+          style={{ fontFamily: "'Syne',sans-serif" }}
+        >
+          Build Stunning React UIs <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9B5EFF] to-[#3ACFFF]">
+            in Seconds with SnappyUI - Your AI-Powered Design Companion
+          </span>
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-white/50 text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-8 sm:mb-10 font-light px-2"
+        >
+          Build faster, design smarter, and ship better with SnappyUI. Our
+          AI-powered React UI library creates clean, responsive components
+          instantly — so you can skip repetitive coding and focus on crafting
+          seamless, high-quality user experiences.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.27 }}
+          className="flex items-center justify-center mb-7 sm:mb-8 px-2"
+        >
+          <div className=" flex items-center gap=2 sm:gap-3 bg-white/[0.04] border boder-white/10 rounded-xl px-4 sm:px-5 py-3 text-xs sm:text-sm font-mono w-full max-w-xs sm:max-w-fit cursor-pointer text-white/70 hover:text-white hover:bg-white/[0.06] transition-colors">
+            <span className="text-[#3ACFFF]">$</span>
+            <span className="text-white/80 truncate">
+              npm install snappyui-lib
+            </span>
+            <button
+              onClick={handleCopy}
+              className=" 
+ml-1 text-white/30 hover:text-[#3ACFFF] tansition-colors cursor-pointer bg-transparent border-none flex-shrink-0"
+            >
+              {copied ? (
+                <TbCheck size={15} className="text-[#3ACFFF]" />
+              ) : (
+                <TbCopy size={15} />
+              )}
+            </button>
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.33 }}
+          className="flex flex-col sm:flex-row justify-center gap-3 px-4 sm::px-0"
+        >
+          <motion.button
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-2 bg-gradient-to-tr from-[#9B5EFF] to-[#3ACFFF] px-4 py-3 rounded-xl text-sm font-semibold cursor-pointer border-none shadow-[0_4px_15px_rgba(58,207,255,0.4)] hover:shadow-[0_6px_20px_rgba(58,207,255,0.6)] transition-all"
+          >
+            Get Started <TbArrowRight size={18} />
+          </motion.button>
+          <motion.button
+            onClick={handlegenerate}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-2 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/70 hover:text-white hover:border-[#3ACFFF]/40 transition-all cursor-pointer bg-transparent"
+          >
+            <HiSparkles size={18} /> Generate Component
+          </motion.button>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.05 }}
+          className="mt-12 sm:mt-16 mx-auto max-w-2xl bg-[#0A0F2C]/80 border border-white/[0.07] rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] p-4 sm:p-5 text-left backdrop-blur-sm overflow-x-auto"
+        >
+          <div className="flex items-center gap-1.5 mb-4">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+            <span className="ml-3 text-[11px] text-white/20 font-mono">
+              App.jsx
+            </span>
+          </div>
+          <div className="font-mono text-[11px] sm:text-[12.5px] leading-6 space-y-0.5 min-w-[280px]">
+            <p>
+              <span className="text-[#FF6B6B]">import </span>{" "}
+              <span className="text-[#3ACFFF]">{"{Button,Card}"}</span>{" "}
+              <span className="text-white/80">from </span>{" "}
+              <span className="text-green-400">snappyui-lib</span>
+              <span className="text-white/80">;</span>
+            </p>
+            <p> </p>
+            <p>
+              <span className="text-[#FF6B6B]">export default function</span>{" "}
+              <span className="text-[#3ACFFF]">App</span>
+              <span className="text-white/80">(){"{}"}</span>
+            </p>
+            <p>
+              <span className="text-white/80">{"return ("}</span>
+            </p>
+            <p>
+              <span className="text-white/80">{"    <"}</span>{" "}
+              <span className="text-[#3ACFFF]">Card</span>{" "}
+              <span className="text-white/80">title</span>
+              <span className="text-white/80">={'"Dashboard"'}</span>
+              <span className="text-white/80">/{">"}</span>
+            </p>
+             <p>
+              <span className="text-white/80">{"    <"}</span>{" "}
+              <span className="text-[#3ACFFF]">Button</span>{" "}
+              <span className="text-white/80">title</span>
+              <span className="text-white/80">={'"click me"'}</span>
+              <span className="text-white/80">/{">"}</span>
+            </p>
+            <p><span className="text-white/80">{"   </"}</span> <span className="text-[#3ACFFF]">Card</span> <span className="text-white/80">{">"}</span></p>
+            <p><span className="text-white/80">{" )"}</span></p>
+            
+          </div>
+        </motion.div>
+      </section>
 
-     {showAuth && <Auth onClose={() => setshowAuth(false)} />}
+      {showAuth && <Auth onClose={() => setshowAuth(false)} />}
     </div>
   );
 }
