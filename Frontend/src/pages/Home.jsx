@@ -528,6 +528,73 @@ Sign in with Google get 350 free credits and start generating production-ready U
   </motion.div>
 </section>
 
+<footer className="border-t border-white/[0.05] bg-[#030b0d] py-10 sm:py-14">
+  <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+    {/* Logo + About */}
+    <div>
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#9B5EFF] to-[#3ACFFF] flex items-center justify-center shadow-[0_0_14px_rgba(58,207,255,0.4)]">
+          <TbLetterS className="text-white text-lg" size={20} />
+        </div>
+
+        <span
+          className="text-lg font-bold text-[#e8f8fa]"
+          style={{ fontFamily: "'Syne',sans-serif" }}
+        >
+          SnappyUI
+        </span>
+      </div>
+
+      <p className="text-sm text-white/40 leading-relaxed">
+        Build stunning React components.
+      </p>
+    </div>
+
+    {/* Product */}
+    <div>
+      <h4 className="text-sm font-semibold text-white/80 mb-4">Product</h4>
+      <ul className="space-y-2 text-sm text-white/40">
+        <li className="hover:text-white cursor-pointer transition-colors">Components</li>
+        <li className="hover:text-white cursor-pointer transition-colors">Pricing</li>
+      </ul>
+    </div>
+
+    {/* Resources */}
+    <div>
+      <h4 className="text-sm font-semibold text-white/80 mb-4">Resources</h4>
+      <ul className="space-y-2 text-sm text-white/40">
+        <li className="hover:text-white cursor-pointer transition-colors">Docs</li>
+        <li className="hover:text-white cursor-pointer transition-colors">Tutorials</li>
+        <li className="hover:text-white cursor-pointer transition-colors">Blog</li>
+        <li className="hover:text-white cursor-pointer transition-colors">Support</li>
+      </ul>
+    </div>
+
+    {/* Contact */}
+    <div>
+      <h4 className="text-sm font-semibold text-white/80 mb-4">Contact</h4>
+      <ul className="space-y-2 text-sm text-white/40">
+        <li className="hover:text-white transition-colors">
+          Email: titoos675@gmail.com
+        </li>
+        <li className="hover:text-white cursor-pointer transition-colors">
+          X:@Titoosingh7
+        </li>
+        <li className="hover:text-white cursor-pointer transition-colors">
+          GitHub:titoo9201
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  {/* Bottom Line */}
+  <div className="mt-10 pt-6 border-t border-white/[0.05] text-center text-xs text-white/25">
+    © {new Date().getFullYear()} SnappyUI. All rights reserved.
+  </div>
+</footer>
+
       {showAuth && <Auth onClose={() => setshowAuth(false)} />}
     </div>
   );
