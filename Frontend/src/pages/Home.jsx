@@ -25,6 +25,15 @@ import { serverUrl } from "../utils/api";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUserData } from "../redux/userSlice";
+const features = [
+  { icon: TbLayout,       title: "Prebuilt UI Components", text: "Install SnappyUI and use ready-made, production-grade components instantly." },
+  { icon: HiSparkles,     title: "AI Component Generator", text: "Describe your UI in plain English and generate React components in seconds." },
+  { icon: TbAdjustments,  title: "Customizable Props", text: "Modify component props and preview changes in real-time without rebuilding." },
+  { icon: TbCode,         title: "Clean JSX Code", text: "Copy production-ready JSX directly into your project — zero boilerplate." },
+  { icon: TbBrandNpm,     title: "NPM Library", text: "Import SnappyUI components with a simple npm install command." },
+  { icon: TbPlayerPlay,   title: "Live Preview", text: "Instantly preview AI-generated components before exporting your code." }
+];
+
 
 function Home() {
   const [showAuth, setshowAuth] = useState(false);
@@ -33,6 +42,7 @@ function Home() {
   const [copied, setCopied] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
 
   const { userData } = useSelector((state) => state.user);
   const getLetter = (name) => {
@@ -370,6 +380,42 @@ ml-1 text-white/30 hover:text-[#3ACFFF] tansition-colors cursor-pointer bg-trans
             
           </div>
         </motion.div>
+      </section>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+        <motion.div
+        initial ={{opacity:0,y:16}}
+        whileInView={{opacity:1,y:0}}
+        viewport={{once:true}}
+        transition={{duration:0.55}}
+
+        className="text-center mb-10 sm:mb-14">
+          <p className="text-sm text-[#3ACFFF] font-semibold tracking-[2.5px] uppercase mb-3">
+            What's inside
+          </p>
+<h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{fontFamily:"'syne',sans-serif"}}>
+  Everything You Need to Build Stunning React UIs, Instantly 
+</h2>
+        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {features.map((f,i)=>(
+            <motion.div 
+            initial ={{opacity:0,y:20}}
+        whileInView={{opacity:1,y:0}}
+        viewport={{once:true}}
+        transition={{duration:0.55,delay:i*0.07}}
+
+            key={i} className="group p-5 sm:p-6 rounded-2xl border border-white/[0.07] bg-wnite/[0.04] hover:bg-white/[0.06] transition-colors cursor-pointer duration-300">
+             <div className="w-10 h-10 rounded-xl bg-[#febc2e]/[0.1] border border-[#febc2e]/15 flex items-center justify-center mb-4 group-hover:bg-[#febc2e]/15 transition-colors">
+             <f.icon size={18} className="text-[#febc2e]" />
+             </div>
+             <h3 className="font-semibold text-white/90 mb-2 text-[15px]"> 
+             {f.title}
+             </h3>
+             <p className="text-sm text-white/45 leading-relaxed">{f.text}</p>
+            </motion.div>
+          ))}
+          
+        </div>
       </section>
 
       {showAuth && <Auth onClose={() => setshowAuth(false)} />}
