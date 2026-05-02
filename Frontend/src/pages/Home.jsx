@@ -400,7 +400,7 @@ ml-1 text-white/30 hover:text-[#3ACFFF] tansition-colors cursor-pointer bg-trans
             What's inside
           </p>
 <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{fontFamily:"'syne',sans-serif"}}>
-  Everything You Need to Build Stunning React UIs, Instantly 
+  👀Everything You Need to Build Stunning React UIs, Instantly 
 </h2>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -437,7 +437,7 @@ ml-1 text-white/30 hover:text-[#3ACFFF] tansition-colors cursor-pointer bg-trans
             
           </p>
 <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{fontFamily:"'syne',sans-serif"}}>
-  How It Works: From Idea to Code in Simple Steps
+  How It Works: From Idea to Code in Simple Steps 👇
 </h2>
         </motion.div>
         <div className="relative grid grid-cols-2  lg:grid-cols-4 gap-6 sm:gap-8">
@@ -459,6 +459,74 @@ ml-1 text-white/30 hover:text-[#3ACFFF] tansition-colors cursor-pointer bg-trans
           ))}
         </div>
       </section>
+     <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6 }}
+    className="relative rounded-2xl sm:rounded-3xl border border-[#3ACFFF]/15 bg-gradient-to-br from-[#3ACFFF]/10 to-[#3ACFFF]/5 p-8 sm:p-14 text-center overflow-hidden"
+  >
+    
+    {/* Background Glow */}
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(58,207,255,0.1)_0%,rgba(58,207,255,0)_60%)] pointer-events-none" />
+
+    {/* Content */}
+    <div className="relative z-10">
+      <p className="text-[10px] font-semibold tracking-[3px] uppercase text-[#3ACFFF]/60 mb-3 sm:mb-4">
+        Start Building
+      </p>
+
+      <h3
+        className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 sm:mb-4"
+        style={{ fontFamily: "'Syne',sans-serif" }}
+      >
+        Ready to Generate <br /> Your New Components?😁
+      </h3>
+{userData ? (<>
+<p className="text-white/40 mb-7 sm:mb-8 text-sm max-w-md mx-auto leading-relaxed">
+Welcome Back 🫣<span className="text-[#3ACFFF] font-bold"> {userData.name}</span> ! Continue building amazing components 🤗
+
+</p>
+<div className="flex flex-cols sm:flex-row justify-center gap-3">
+  <motion.button
+  whileHover={{y: -2, scale: 1.05}}
+  whileTap={{scale:0.95}}
+  className="flex items-center justify-center gap-2 bg-[#3ACFFF] text-[#030b0d] px-7 py-3.5 rounded-xl font-semibold cursor-pointer border-none shadow-[0_4px_15px_rgba(58,207,255,0.4)] hover:shadow-[0_6px_20px_rgba(58,207,255,0.6)] transition-shadow">
+    Continue Generating <TbArrowRight size={18} />
+  </motion.button>
+  <motion.button 
+   whileHover={{y: -2}}
+  whileTap={{scale:0.95}}
+  className="flex items-center justify-center gap-2 border border-white/15 rounded-xl px-7 py-3.5 text-sm text-white/60 hover:text-white hover:border-white/25 transition-all cursor-pointer bg-transparent">
+ <TbComponents size={18} className="text-white/70" />
+ My Components
+  </motion.button>
+</div>
+</>):(<>
+<p className="text-white/40 mb-7 sm:mb-8 text-sm max-w-md mx-auto leading-relaxed">
+Sign in with Google get 350 free credits and start generating production-ready UI components in seconds! 🤗
+</p>
+<div className="flex flex-cols sm:flex-row justify-center gap-3">
+  <motion.button
+  onClick={()=>setshowAuth(true)}
+  whileHover={{y: -2, scale: 1.05}}
+  whileTap={{scale:0.97}}
+  className="flex items-center justify-center gap-2 bg-[#3ACFFF] text-[#030b0d] px-7 py-3.5 rounded-xl font-semibold cursor-pointer border-none shadow-[0_4px_15px_rgba(58,207,255,0.4)] hover:shadow-[0_6px_20px_rgba(58,207,255,0.6)] transition-shadow">
+    Get Started For Free <TbArrowRight size={18} />
+  </motion.button>
+  <motion.button 
+   whileHover={{y: -2}}
+  whileTap={{scale:0.95}}
+  className="flex items-center justify-center gap-2 border border-white/15 rounded-xl px-7 py-3.5 text-sm text-white/60 hover:text-white hover:border-white/25 transition-all cursor-pointer bg-transparent">
+ <TbComponents size={18} className="text-white/70" />
+  Components
+  </motion.button>
+</div>
+</>)}
+    </div>
+  </motion.div>
+</section>
 
       {showAuth && <Auth onClose={() => setshowAuth(false)} />}
     </div>
