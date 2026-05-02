@@ -26,12 +26,19 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUserData } from "../redux/userSlice";
 const features = [
-  { icon: TbLayout,       title: "Prebuilt UI Components", text: "Install SnappyUI and use ready-made, production-grade components instantly." },
+  { icon: TbLayout,       title: "Prebuilt UI Components", text: "Install snappyui-lib and use ready-made, production-grade components instantly." },
   { icon: HiSparkles,     title: "AI Component Generator", text: "Describe your UI in plain English and generate React components in seconds." },
   { icon: TbAdjustments,  title: "Customizable Props", text: "Modify component props and preview changes in real-time without rebuilding." },
   { icon: TbCode,         title: "Clean JSX Code", text: "Copy production-ready JSX directly into your project — zero boilerplate." },
-  { icon: TbBrandNpm,     title: "NPM Library", text: "Import SnappyUI components with a simple npm install command." },
+  { icon: TbBrandNpm,     title: "NPM Library", text: "Import snappyui-lib components with a simple npm install command." },
   { icon: TbPlayerPlay,   title: "Live Preview", text: "Instantly preview AI-generated components before exporting your code." }
+];
+
+const steps = [
+  { n:"01", title:"Install Library", text:"npm install snappyui-lib to access all prebuilt UI components." },
+  { n:"02", title:"Use Components", text:"Import and customize with props for any design requirement." },
+  { n:"03", title:"Generate with AI", text:"Describe your UI and let AI build the component for you." },
+  { n:"04", title:"Copy & Use", text:"Paste the clean JSX code straight into your project." },
 ];
 
 
@@ -415,6 +422,41 @@ ml-1 text-white/30 hover:text-[#3ACFFF] tansition-colors cursor-pointer bg-trans
             </motion.div>
           ))}
           
+        </div>
+      </section>
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+         <motion.div
+        initial ={{opacity:0,y:16}}
+        whileInView={{opacity:1,y:0}}
+        viewport={{once:true}}
+        transition={{duration:0.55}}
+
+        className="text-center mb-10 sm:mb-14">
+          <p className="text-sm text-[#3ACFFF] font-semibold tracking-[2.5px] uppercase mb-3">
+            SIMPLE PROCESS, POWERFUL RESULTS
+            
+          </p>
+<h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{fontFamily:"'syne',sans-serif"}}>
+  How It Works: From Idea to Code in Simple Steps
+</h2>
+        </motion.div>
+        <div className="relative grid grid-cols-2  lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="hidden lg:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-[#3ACFFF] to-transparent"/>
+          {steps.map((s,i)=>(
+            <motion.div key={i} 
+        initial ={{opacity:0,y:20}}
+        whileInView={{opacity:1,y:0}}
+        viewport={{once:true}}
+        transition={{duration:0.55,delay:i*0.1}}
+          className="relative text-center group"
+            >
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 rounded-2xl bg-gradient-to-br from-[#3ACFFF] to-[#007BFF] border border-[#3ACFFF]/20 flex flex-cols items-center justify-center group-hover:border-[#3ACFFF]/50 group-hover:shadow-[0_0_20px_rgba(58,207,255,0.5)] transition-all duration-300 " >
+              <span className="text-[9px] text-white font-bold tracking-widset">{s.n}</span>
+              </div>
+              <h3 className="font-semibold text-white/90 mb-2 text-[13px] sm:text-[15px]">{s.title}</h3>
+              <p className="text-[11px] sm:text-xs text-white/40 loading-relaxed">{s.text}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
