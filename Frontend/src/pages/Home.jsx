@@ -595,6 +595,7 @@ Sign in with Google get 350 free credits and start generating production-ready U
   </div>
 </footer>
 
+
       {showAuth && <Auth onClose={() => setshowAuth(false)} />}
     </div>
   );

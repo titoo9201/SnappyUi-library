@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import { serverUrl } from './utils/api'
 import { useDispatch } from 'react-redux'
 import { setUserData } from './redux/userSlice.js'
+import Generate from './pages/Generate.jsx'
 
 function App() {
   const dispatch = useDispatch()
@@ -28,6 +29,7 @@ function App() {
     
       <Routes>
         <Route path='/' element={<Home/>} />
+        <Route path="/generate" element={<Generate/>}/>
       </Routes>
   
     </div>

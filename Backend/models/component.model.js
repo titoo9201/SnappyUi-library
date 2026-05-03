@@ -25,6 +25,5 @@ const componentSchema = new mongoose.Schema({
    }
 },{timestamps:true})
 
-const componentModel = mongoose.model("component",componentSchema)
+export const componentModel = mongoose.model("component",componentSchema)
 
-export default componentModel 
