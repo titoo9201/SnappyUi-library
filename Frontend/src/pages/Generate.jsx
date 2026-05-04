@@ -1,88 +1,164 @@
-import React from 'react'
+import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  FiCpu,FiSave, FiEye, FiCode, FiUploadCloud, FiArrowRight,
-  FiLoader, FiPackage, FiAlertCircle, FiCheckCircle,
-  FiLayers, FiArrowLeft, FiRefreshCw, FiPlus,
+  FiCpu,
+  FiSave,
+  FiEye,
+  FiCode,
+  FiUploadCloud,
+  FiArrowRight,
+  FiLoader,
+  FiPackage,
+  FiAlertCircle,
+  FiCheckCircle,
+  FiLayers,
+  FiArrowLeft,
+  FiRefreshCw,
+  FiPlus,
   FiZap,
 } from "react-icons/fi";
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import axios from 'axios';
-import { serverUrl } from '../utils/api';
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
+import { serverUrl } from "../utils/api";
 import { TbX } from "react-icons/tb";
-import { useDispatch } from 'react-redux';
-import { setUserData } from '../redux/userSlice';
-const Toast=({message,type,onClose})=>{
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
+import { LiveComponents } from "../components/LiveComponents";
+const Toast = ({ message, type, onClose }) => {
   return (
     <motion.div
-    initial={{ opacity: 0, y: -40 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -40 }}
-    className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl "
-    style={{background:type==="success"?"#22c55e":type==="error"?"#ef4444":"#f59e0b",color:"#ffffff",
-      minWidth:"220px"
-    }}
+      initial={{ opacity: 0, y: -40 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -40 }}
+      className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl "
+      style={{
+        background:
+          type === "success"
+            ? "#22c55e"
+            : type === "error"
+              ? "#ef4444"
+              : "#f59e0b",
+        color: "#ffffff",
+        minWidth: "220px",
+      }}
     >
-      {type==="success"?<FiCheckCircle size={20} />:type==="error"?<FiAlertCircle size={20} />:<FiZap size={20} />}
-      <p className='text-sm font-medium'> {message}</p>
-      <button className="ml-auto text-white/60 hover:text-white text-xs"
-      onClick={onClose}>
+      {type === "success" ? (
+        <FiCheckCircle size={20} />
+      ) : type === "error" ? (
+        <FiAlertCircle size={20} />
+      ) : (
+        <FiZap size={20} />
+      )}
+      <p className="text-sm font-medium"> {message}</p>
+      <button
+        className="ml-auto text-white/60 hover:text-white text-xs"
+        onClick={onClose}
+      >
         <TbX size={20} />
       </button>
     </motion.div>
-  )
-}
+  );
+};
 
 function Generate() {
-    const {userData}=useSelector((state)=>state.user)
-    const userRole=userData?.role
-    const aicredits=userData?.credits
-    const lowCredits=userRole==="user"&& aicredits<15
-    const navigate = useNavigate()
-    const [prompt,setPrompt]=useState("")
-    const [generated,setGenerated]=useState(null)
-    const [generating,setGenerating]=useState(false)
-    const [toast,setToast]=useState(null)
-    const dispatch= useDispatch()
-    const showToast=(message,type="info")=>{
-      setToast({message,type})
-      setTimeout(()=>setToast(null),3500)
+  const { userData } = useSelector((state) => state.user);
+  const userRole = userData?.role;
+  const aicredits = userData?.credits;
+  const lowCredits = userRole === "user" && aicredits < 15;
+  const navigate = useNavigate();
+  const [prompt, setPrompt] = useState("");
+  const [generated, setGenerated] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [activeTab, setActiveTab] = useState("preview");
+  const [savedComponentId, setSavedComponentId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
+  const dispatch = useDispatch();
+  const showToast = (message, type = "info") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
+  const handleGenerate = async () => {
+    if (!prompt.trim() || lowCredits) return;
+    setGenerating(null);
+    setGenerating(true);
+    try {
+      const { data } = await axios.post(
+        serverUrl + "/api/components/generate",
+        { prompt },
+        { withCredentials: true },
+      );
+      console.log(data.parsed);
+      setGenerated(data.parsed);
+      dispatch(
+        setUserData({
+          ...userData,
+          credits: data.remainingCredits,
+        }),
+      );
+      setGenerating(false);
+      showToast("Component generated successfully!", "success");
+    } catch (err) {
+      showToast("Failed to generate component. Please try again.", "error");
+      setGenerating(false);
     }
-    const handleGenerate=async()=>{
-      if(!prompt.trim() ||lowCredits) return;
-      setGenerating(null)
-      setGenerating(true)
-      try{
-      const {data} = await axios.post(serverUrl+"/api/components/generate",{prompt},{withCredentials:true})
-      console.log(data.parsed)
-      setGenerated(data.parsed)
-      dispatch(setUserData({
-        ...userData,
-        credits:data.remainingCredits
-      }))
-      setGenerating(false)
-      showToast("Component generated successfully!","success")
-      }catch(err){
-      showToast("Failed to generate component. Please try again.","error")
-          setGenerating(false)
-      }
-      }
-     const handleKeyDown=(e)=>{
-      if((e.ctrlKey||e.metaKey)&& e.key==="Enter")
-      {
-        handleGenerate()
-      }
-     }
+  };
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      handleGenerate();
+    }
+  };
+
+  const handleSave = async () => {
+    if(!generated) return;
+    setSaving(true)
+    try{
+     const res= await axios.post(serverlUrl+"/api/components/save",{
+        name:generated.name,
+        code:generated.code,
+        props:generated.props 
+     },{withCredentials:true}) 
+     setSavedComponentId(res.data._id)
+     showToast("Component saved successfully!", "success")
+     setSaving(false)
+    }catch(err){
+      console.log("Error saving component:",err)
+        showToast("Failed to save component. Please try again.", "error")
+        setSaving(false)
+
+
+    }
+  };
+  const handlePublish = async()=>{
+    if(!savedComponentId) return;
+    SetPublishing(true)
+    try{
+     await axios.post(serverUrl+"/api/components/publish",{
+        componentId:savedComponentId
+      },{withCredentials:true})
+      setPublished(true)
+      showToast("Component published to NPM successfully!", "success")
+      setPublishing(false)
+    }catch(err){
+
+      showToast("Failed to publish component. Please try again.", "error")
+      setPublishing(false)
+      console.log("Error publishing component:",err)
+    }
+  }
+
   return (
     <div
       className="min-h-screen text-white relative overflow-hidden"
       style={{
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)"
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
       }}
     >
-
       {/* Grid Pattern */}
       <div
         className="absolute inset-0 pointer-events-none opacity-10"
@@ -113,20 +189,18 @@ function Generate() {
       />
 
       <div className="relative z-10 max-w-5xl mx-auto py-12 px-4">
-
         {/* Heading Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-
           {/* Badge */}
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 backdrop-blur-md"
             style={{
               background: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)"
+              border: "1px solid rgba(255, 255, 255, 0.15)",
             }}
           >
             <FiCpu size={14} className="text-indigo-400" />
@@ -138,9 +212,7 @@ function Generate() {
           {/* Title */}
           <h2 className="text-5xl font-bold mb-4 leading-tight">
             <span className="text-white">Build with</span>{" "}
-            <span
-              className="bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent"
-            >
+            <span className="bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
               ease
             </span>
           </h2>
@@ -149,143 +221,520 @@ function Generate() {
           <p className="text-gray-400 text-sm max-w-xl mx-auto">
             Generate, preview and export beautiful UI components instantly.
           </p>
-
         </motion.div>
-        {
-            userRole==="user"&& (
-                <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="flex justify-end mb-4"
-                >
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
-                    style={{background:lowCredits?"rgba(255, 0, 0, 0.08)":"rgba(255, 255, 255, 0.08)",border:lowCredits?"1px solid rgba(255, 0, 0, 0.5)":"1px solid rgba(255, 255, 255, 0.15)"}}>
-                         <FiZap size={13} style={{color:lowCredits?"#ff0000":"#ffffff"}}/>
-                         <span className="text-xs font-semibold" style={{color:lowCredits?"#ff0000":"#ffffff"}}>
-                           {aicredits} Credits Left
-                         </span>
-                         <button className="flex items-center justify-center w-5 h-5 rounded-md transition-all cursor-pointer border-none"
-                         style={{background:lowCredits?"rgba(255, 0, 0, 0.5)":"rgba(255, 255, 255, 0.5)"}}
-                     
-                         onClick={()=>navigate("/pricing")} 
-                         >
-                            <FiPlus size={10} style={{color:lowCredits?"#ff0000":"#ffffff"}}/>
-
-                         </button>
-                    </div>
-                </motion.div>
-            )
-        }
-        {
-            lowCredits&&(
-                <motion.div
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-5"
-                style={{background:"rgba(255, 0, 0, 0.08)",border:"1px solid rgba(255, 0, 0, 0.5)"}}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}>
-                    <FiAlertCircle size={18} style={{color:"#ff0000"}}/>
-                    <p className="text-sm text-red-400">
-                        You need at least <span className="font-bold text-red-400">15 Credits</span> to generate components. Please purchase more credits to continue using the AI generation feature.
-                    </p>
-                    <button 
-                        onClick={()=>navigate("/pricing")}
-                    className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border-none whitespace-nowrap"
-                    style={{background:"rgba(255, 0, 0, 0.5)"}}>
-                        <span style={{color:"#ff0000"}}>Buy Credits</span>
-                        <FiArrowRight size={12} style={{color:"#ff0000"}}/>
-                        
-                    </button>
-
-                </motion.div>
-            )
-        }
+        {userRole === "user" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex justify-end mb-4"
+          >
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
+              style={{
+                background: lowCredits
+                  ? "rgba(255, 0, 0, 0.08)"
+                  : "rgba(255, 255, 255, 0.08)",
+                border: lowCredits
+                  ? "1px solid rgba(255, 0, 0, 0.5)"
+                  : "1px solid rgba(255, 255, 255, 0.15)",
+              }}
+            >
+              <FiZap
+                size={13}
+                style={{ color: lowCredits ? "#ff0000" : "#ffffff" }}
+              />
+              <span
+                className="text-xs font-semibold"
+                style={{ color: lowCredits ? "#ff0000" : "#ffffff" }}
+              >
+                {aicredits} Credits Left
+              </span>
+              <button
+                className="flex items-center justify-center w-5 h-5 rounded-md transition-all cursor-pointer border-none"
+                style={{
+                  background: lowCredits
+                    ? "rgba(255, 0, 0, 0.5)"
+                    : "rgba(255, 255, 255, 0.5)",
+                }}
+                onClick={() => navigate("/pricing")}
+              >
+                <FiPlus
+                  size={10}
+                  style={{ color: lowCredits ? "#ff0000" : "#ffffff" }}
+                />
+              </button>
+            </div>
+          </motion.div>
+        )}
+        {lowCredits && (
+          <motion.div
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-5"
+            style={{
+              background: "rgba(255, 0, 0, 0.08)",
+              border: "1px solid rgba(255, 0, 0, 0.5)",
+            }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <FiAlertCircle size={18} style={{ color: "#ff0000" }} />
+            <p className="text-sm text-red-400">
+              You need at least{" "}
+              <span className="font-bold text-red-400">15 Credits</span> to
+              generate components. Please purchase more credits to continue
+              using the AI generation feature.
+            </p>
+            <button
+              onClick={() => navigate("/pricing")}
+              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border-none whitespace-nowrap"
+              style={{ background: "rgba(255, 0, 0, 0.5)" }}
+            >
+              <span style={{ color: "#ff0000" }}>Buy Credits</span>
+              <FiArrowRight size={12} style={{ color: "#ff0000" }} />
+            </button>
+          </motion.div>
+        )}
         <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="rounded-2xl p-1 mb-8"
-        style={{background: "rgba(255, 255, 255, 0.08)", border: `1px solid ${lowCredits?" rgba(255, 0, 0, 0.5)":" rgba(255, 255, 255, 0.15)"}`,opacity:lowCredits?0.6:1}}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="rounded-2xl p-1 mb-8"
+          style={{
+            background: "rgba(255, 255, 255, 0.08)",
+            border: `1px solid ${lowCredits ? " rgba(255, 0, 0, 0.5)" : " rgba(255, 255, 255, 0.15)"}`,
+            opacity: lowCredits ? 0.6 : 1,
+          }}
         >
-            <div className="flex items-start gap-3 p-4">
-                <FiCode size={20} className="text-indigo-400 mt-1" />
-                <textarea
-                onKeyDown={handleKeyDown}
-                value={prompt}
-                onChange={(e)=>setPrompt(e.target.value)}
-                rows={3}
-                disabled={lowCredits}
-                placeholder={lowCredits ? "Insufficient credits to generate components." : "A glassmorphism pricing card with a toggle for monthly/yearly billing..."} className="w-full bg-transparent text-white placeholder-white/50 text-[15px] resize-none outline-none leading-relaxed disabled:cursor-not-allowed" />
-            </div>
-            <div className="flex items-center justify-between px-4 pb-3">
-                <span className="text-xs text-white/20">
-                Ctrl + Enter to Generate
-                </span>
-                <motion.button 
-                whileTap={{scale:0.95}}
-                onClick={handleGenerate}
-                disabled={generating || lowCredits||!prompt.trim()}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed tansition-all"
-                style={{background:generating?"rgba(255, 255, 255, 0.2)":"rgba(255, 255, 255, 0.5)",boxShadow:generating?"none":"0 4px 14px rgba(255, 255, 255, 0.3)"}}
+          <div className="flex items-start gap-3 p-4">
+            <FiCode size={20} className="text-indigo-400 mt-1" />
+            <textarea
+              onKeyDown={handleKeyDown}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={3}
+              disabled={lowCredits}
+              placeholder={
+                lowCredits
+                  ? "Insufficient credits to generate components."
+                  : "A glassmorphism pricing card with a toggle for monthly/yearly billing..."
+              }
+              className="w-full bg-transparent text-white placeholder-white/50 text-[15px] resize-none outline-none leading-relaxed disabled:cursor-not-allowed"
+            />
+          </div>
+          <div className="flex items-center justify-between px-4 pb-3">
+            <span className="text-xs text-white/20">
+              Ctrl + Enter to Generate
+            </span>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleGenerate}
+              disabled={generating || lowCredits || !prompt.trim()}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed tansition-all"
+              style={{
+                background: generating
+                  ? "rgba(255, 255, 255, 0.2)"
+                  : "rgba(255, 255, 255, 0.5)",
+                boxShadow: generating
+                  ? "none"
+                  : "0 4px 14px rgba(255, 255, 255, 0.3)",
+              }}
+            >
+              {generating ? (
+                <motion.span
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                  className="inline-block"
                 >
-                {
-                  generating?(
-                    <motion.span
-                    animate={{rotate:360}}
-                    transition={{repeat:Infinity,duration:1,ease:"linear"}}
-                    className="inline-block"
-                    >
-                      <FiLoader size={16}/>
-                    </motion.span>
-                  ):( <FiZap size={16} className="text-white"/> )
-                }
-                {generating?"Generating...":"Generate"}
-                </motion.button>
-            </div>
+                  <FiLoader size={16} />
+                </motion.span>
+              ) : (
+                <FiZap size={16} className="text-white" />
+              )}
+              {generating ? "Generating..." : "Generate"}
+            </motion.button>
+          </div>
         </motion.div>
       </div>
+      <AnimatePresence>
+        {generated && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            className=" rounded-2xl overflow-hidden "
+            style={{
+              background: "rgba(255, 255, 255, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+            }}
+          >
+            <div
+              className="flex items-center justify-between px-5 py-4  border-b"
+              style={{
+                borderColor: "rgba(255, 255, 255, 0.15)",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.08)",
+                  }}
+                >
+                  <FiLayers size={14} className="text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">
+                    {generated.name}
+                  </p>
+                  <p className="text-xs text-white/30">
+                    {generated.props?.length > 0
+                      ? `Props: ${generated.props.join(", ")}`
+                      : "No Props"}
+                  </p>
+                </div>
+              </div>
 
-{
-  !generated&& !generating &&(
-    <motion.div 
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.3 }}
-    className="text-center py-16">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-      style={{background:"rgba(255, 255, 255, 0.08)",border:"1px solid rgba(255, 255, 255, 0.15)"}}
-      >
-        <FiCpu size={24} className="text-indigo-400"/>
-      </div>
-      <p className="text-white/20 text-sm"> Describe your component above and hit Generate! </p>
-    </motion.div>
-  )
-}
-{
-  generating&&(
-    <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-     className=" text-center py-16">
-      <motion.div 
-      style={{borderTopColor:"#6366f1",borderRightColor:"#6366f1",}}
-      className="w-12 h-12 rounded-full border-2 border-transparent mx-auto mb-4"
-        animate={{rotate:360}}
-        transition={{repeat:Infinity,duration:1,ease:"linear"}}
-      
-      />
-      <p className='text-white/30 text-sm '>
-      Generating your component...
-      </p>
+              <div
+                className="flex gap-1 rounded-xl p-1"
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                }}
+              >
+                {["preview", "code"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className="flex items-center gap-1.5 px-3 rounded-lg text-xs font-medium transition-all capitalize "
+                    style={{
+                      background:
+                        activeTab === tab
+                          ? "rgba(255, 255, 255, 0.2)"
+                          : "transparent",
+                      color:
+                        activeTab === tab
+                          ? "#ffffff"
+                          : "rgba(255, 255, 255, 0.5)",
+                    }}
+                  >
+                    {tab === "preview" ? (
+                      <FiEye size={15} />
+                    ) : (
+                      <FiCode size={15} />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-    </motion.div>
-  )
-}
-<AnimatePresence>
-  {
-    toast&&(<Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />)
-  }
-</AnimatePresence>
+            <div className="p-5">
+              <AnimatePresence mode="wait">
+                {activeTab === "preview" ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    key="preview"
+                  >
+                    {generated?.code && (
+                      <LiveComponents code={generated.code} />
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    key="code"
+                    className="rounded-xl overflow-auto"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      maxHeight: "340px",
+                    }}
+                  >
+                    <pre className="p-5 text-xs leading-relaxed text-green-300 font-mono whitespace-pre-wrap">
+                      {generated.code}
+                    </pre>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="flex items-center gap-3 px-5 pb-5 pt-1 flex-wrap ">
+              {userRole === "admin" && (
+                <>
+                  <motion.button
+                    onClick={handleSave}
+                    whileTap={{ scale: 0.95 }}
+                    disabled={saving || savedComponentId}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    syle={{
+                      background: savedComponentId
+                        ? "rgba(255,255,255,0.2)"
+                        : "rgba(255,255,255,0.5)",
+                      border: savedComponentId
+                        ? "1px solid rgba(255,255,255,0.3)"
+                        : "1px solid rgba(255,255,255,0.1)",
+                      color: savedComponentId
+                        ? "rgba(255,255,255,0.7)"
+                        : "#ffffff",
+                    }}
+                  >
+                    {saving ? (
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 1,
+                          ease: "linear",
+                        }}
+                      >
+                        {" "}
+                        <FiLoader size={16} />{" "}
+                      </motion.span>
+                    ) : savedComponentId ? (
+                      <fiChecKCircle size={16} />
+                    ) : (
+                      <FiSave size={16} />
+                    )}
+
+                    {saving
+                      ? "Saving..."
+                      : savedComponentId
+                        ? "Saved"
+                        : "Save Component"}
+                  </motion.button>
+                  {savedComponentId && !published && (
+                    <motion.button
+                    onClick={handlePublish}
+                      disabled={publishing}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opaciy-40"
+                      style={{
+                        background: publishing
+                          ? "rgba(255,255,255,0.2)"
+                          : "rgba(255,255,255,0.5)",
+                        boxShadow: publishing
+                          ? "none"
+                          : "0 4px 14px rgba(255, 255, 255, 0.3)",
+                        color: "#ffff",
+                      }}
+                    >
+                      {publishing ? (
+                        <motion.span
+                          animate={{ rotate: 360 }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 1,
+                            ease: "linear",
+                          }}
+                        >
+                          <FiLoader size={16} />
+                        </motion.span>
+                      ) : (
+                        <FiUploadCloud size={16} />
+                      )}
+                      {publishing ? "Publishing..." : "Publish to NPM"}
+                    </motion.button>
+                  )}
+                  {published && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold "
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        border: "1px solid rgba(255,255,255,0.3)",
+                        color: "rgba(255,255,255,0.7)",
+                      }}
+                    >
+                      <fiCheckCircle size={16} />
+                      Published on NPM
+                    </motion.div>
+                  )}
+                  {savedComponentId && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex items-center gap-2 ml-auto"
+                    >
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all "
+                        style={{
+                          background: "rgba(255,255,255,0.08)",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                          color: "#ffffff",
+                        }}
+                        onClick={() => navigate("/")}
+                      >
+                        <fiArrowLeft size={16} /> Back to Editor
+                      </motion.button>
+                      <motion.button
+                        onClick={() => {
+                          setPrompt("");
+                          setGenerated(null);
+                          setSavedComponentId(null);
+                          setpubleshed(false);
+                          setActiveTab("preview");
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all "
+                        style={{
+                          background: "rgba(255,255,255,0.08)",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                          color: "#ffffff",
+                        }}
+                      >
+                        <FiRefreshCw size={16} /> Generate New Component
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </>
+              )}
+              {userRole === "user" &&
+              
+               <>
+                  <motion.button
+                      onClick={handleSave}
+                    whileTap={{ scale: 0.95 }}
+                    disabled={saving || savedComponentId}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    syle={{
+                      background: savedComponentId
+                        ? "rgba(255,255,255,0.2)"
+                        : "rgba(255,255,255,0.5)",
+                      border: savedComponentId
+                        ? "1px solid rgba(255,255,255,0.3)"
+                        : "1px solid rgba(255,255,255,0.1)",
+                      color: savedComponentId
+                        ? "rgba(255,255,255,0.7)"
+                        : "#ffffff",
+                    }}
+                  >
+                    {saving ? (
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 1,
+                          ease: "linear",
+                        }}
+                      >
+                        {" "}
+                        <FiLoader size={16} />{" "}
+                      </motion.span>
+                    ) : savedComponentId ? (
+                      <fiChecKCircle size={16} />
+                    ) : (
+                      <FiSave size={16} />
+                    )}
+
+                    {saving
+                      ? "Saving..."
+                      : savedComponentId
+                        ? "Saved"
+                        : "Save Component"}
+                  </motion.button>
+                  {savedComponentId && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex items-center gap-2 ml-auto"
+                    >
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all "
+                        style={{
+                          background: "rgba(255,255,255,0.08)",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                          color: "#ffffff",
+                        }}
+                        onClick={() => navigate("/")}
+                      >
+                        <fiArrowLeft size={16} /> Back to Editor
+                      </motion.button>
+                      <motion.button
+                        onClick={() => {
+                          setPrompt("");
+                          setGenerated(null);
+                          setSavedComponentId(null);
+                          setpubleshed(false);
+                          setActiveTab("preview");
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all "
+                        style={{
+                          background: "rgba(255,255,255,0.08)",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                          color: "#ffffff",
+                        }}
+                      >
+                        <FiRefreshCw size={16} /> Generate New Component
+                      </motion.button>
+                      <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all "
+                      style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",color:"#ffffff"}}
+                      >
+                         <FiPackage size={16} /> My Components
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </>
+              
+              }
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!generated && !generating && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-center py-16"
+        >
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style={{
+              background: "rgba(255, 255, 255, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+            }}
+          >
+            <FiCpu size={24} className="text-indigo-400" />
+          </div>
+          <p className="text-white/20 text-sm">
+            {" "}
+            Describe your component above and hit Generate!{" "}
+          </p>
+        </motion.div>
+      )}
+      {generating && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className=" text-center py-16"
+        >
+          <motion.div
+            style={{ borderTopColor: "#6366f1", borderRightColor: "#6366f1" }}
+            className="w-12 h-12 rounded-full border-2 border-transparent mx-auto mb-4"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          />
+          <p className="text-white/30 text-sm ">Generating your component...</p>
+        </motion.div>
+      )}
+      <AnimatePresence>
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
