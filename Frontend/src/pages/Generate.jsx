@@ -9,9 +9,29 @@ import {
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import axios from 'axios';
+import { serverUrl } from '../utils/api';
+import { TbX } from "react-icons/tb";
+import { useDispatch } from 'react-redux';
+import { setUserData } from '../redux/userSlice';
 const Toast=({message,type,onClose})=>{
   return (
-    <motion.div></motion.div>
+    <motion.div
+    initial={{ opacity: 0, y: -40 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -40 }}
+    className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl "
+    style={{background:type==="success"?"#22c55e":type==="error"?"#ef4444":"#f59e0b",color:"#ffffff",
+      minWidth:"220px"
+    }}
+    >
+      {type==="success"?<FiCheckCircle size={20} />:type==="error"?<FiAlertCircle size={20} />:<FiZap size={20} />}
+      <p className='text-sm font-medium'> {message}</p>
+      <button className="ml-auto text-white/60 hover:text-white text-xs"
+      onClick={onClose}>
+        <TbX size={20} />
+      </button>
+    </motion.div>
   )
 }
 
@@ -24,13 +44,37 @@ function Generate() {
     const [prompt,setPrompt]=useState("")
     const [generated,setGenerated]=useState(null)
     const [generating,setGenerating]=useState(false)
-    const handleGenerate=async()=>{
-      try{
-
-      }catch(err){
-
-      }
+    const [toast,setToast]=useState(null)
+    const dispatch= useDispatch()
+    const showToast=(message,type="info")=>{
+      setToast({message,type})
+      setTimeout(()=>setToast(null),3500)
     }
+    const handleGenerate=async()=>{
+      if(!prompt.trim() ||lowCredits) return;
+      setGenerating(null)
+      setGenerating(true)
+      try{
+      const {data} = await axios.post(serverUrl+"/api/components/generate",{prompt},{withCredentials:true})
+      console.log(data.parsed)
+      setGenerated(data.parsed)
+      dispatch(setUserData({
+        ...userData,
+        credits:data.remainingCredits
+      }))
+      setGenerating(false)
+      showToast("Component generated successfully!","success")
+      }catch(err){
+      showToast("Failed to generate component. Please try again.","error")
+          setGenerating(false)
+      }
+      }
+     const handleKeyDown=(e)=>{
+      if((e.ctrlKey||e.metaKey)&& e.key==="Enter")
+      {
+        handleGenerate()
+      }
+     }
   return (
     <div
       className="min-h-screen text-white relative overflow-hidden"
@@ -113,7 +157,7 @@ function Generate() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className ="flex justify-end mb-4 "
+                className="flex justify-end mb-4"
                 >
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
                     style={{background:lowCredits?"rgba(255, 0, 0, 0.08)":"rgba(255, 255, 255, 0.08)",border:lowCredits?"1px solid rgba(255, 0, 0, 0.5)":"1px solid rgba(255, 255, 255, 0.15)"}}>
@@ -135,7 +179,8 @@ function Generate() {
         }
         {
             lowCredits&&(
-                <motion.div className ="flex items-center gap-3 px-4 py-3 rounded-2xl mb-5"
+                <motion.div
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-5"
                 style={{background:"rgba(255, 0, 0, 0.08)",border:"1px solid rgba(255, 0, 0, 0.5)"}}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}>
@@ -154,25 +199,23 @@ function Generate() {
 
                 </motion.div>
             )
-           
-   
         }
         <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
         className="rounded-2xl p-1 mb-8"
-        style={{background: "rgba(255, 255, 255, 0.08)", border: `1px solid${lowCredits?" rgba(255, 0, 0, 0.5)":" rgba(255, 255, 255, 0.15)"}`,opacity:lowCredits?0.6:1}}
-
+        style={{background: "rgba(255, 255, 255, 0.08)", border: `1px solid ${lowCredits?" rgba(255, 0, 0, 0.5)":" rgba(255, 255, 255, 0.15)"}`,opacity:lowCredits?0.6:1}}
         >
             <div className="flex items-start gap-3 p-4">
                 <FiCode size={20} className="text-indigo-400 mt-1" />
                 <textarea
+                onKeyDown={handleKeyDown}
                 value={prompt}
                 onChange={(e)=>setPrompt(e.target.value)}
-                row={3}
+                rows={3}
                 disabled={lowCredits}
-                placeholder={lowCredits ? "Insufficient credits to generate components." : "A glassmorphism pricing card with a toggle for monthly/yearly billing..."} className="w-full bg-transparent text-white placeholder-white/50 text-[15px] resize-none outline-none leading-relaxed disaabled:cursor-not-allowed" />
+                placeholder={lowCredits ? "Insufficient credits to generate components." : "A glassmorphism pricing card with a toggle for monthly/yearly billing..."} className="w-full bg-transparent text-white placeholder-white/50 text-[15px] resize-none outline-none leading-relaxed disabled:cursor-not-allowed" />
             </div>
             <div className="flex items-center justify-between px-4 pb-3">
                 <span className="text-xs text-white/20">
@@ -180,6 +223,7 @@ function Generate() {
                 </span>
                 <motion.button 
                 whileTap={{scale:0.95}}
+                onClick={handleGenerate}
                 disabled={generating || lowCredits||!prompt.trim()}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed tansition-all"
                 style={{background:generating?"rgba(255, 255, 255, 0.2)":"rgba(255, 255, 255, 0.5)",boxShadow:generating?"none":"0 4px 14px rgba(255, 255, 255, 0.3)"}}
@@ -194,7 +238,8 @@ function Generate() {
                       <FiLoader size={16}/>
                     </motion.span>
                   ):( <FiZap size={16} className="text-white"/> )
-                }{generating?"Generating...":"Generate"}
+                }
+                {generating?"Generating...":"Generate"}
                 </motion.button>
             </div>
         </motion.div>
@@ -236,6 +281,11 @@ function Generate() {
     </motion.div>
   )
 }
+<AnimatePresence>
+  {
+    toast&&(<Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />)
+  }
+</AnimatePresence>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import axios from "axios"
 
 export const askai = async(message)=>{
     try{
-        if(!message|| Array.isArray(message)||message.length===0){
+        if(!Array.isArray(message) || message.length===0){
             throw new Error("Message must be a non-empty array")
         }
     const response = await axios.post(process.env.OPEN_ROUTER_URL,{
